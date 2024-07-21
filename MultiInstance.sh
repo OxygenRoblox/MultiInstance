@@ -8,9 +8,22 @@ log_message() {
 # Path to Roblox Player executable
 ROBLOX_PLAYER_PATH="/Applications/Roblox.app/Contents/MacOS/RobloxPlayer"
 
-# Launch Roblox Player and capture console output
-echo "Launching Roblox Player..."
-console_output="$("$ROBLOX_PLAYER_PATH" 2>&1 &)"  # Capture both stdout and stderr
+# Check if Roblox Player executable exists
+if [ ! -f "$ROBLOX_PLAYER_PATH" ]; then
+    echo "Error: Roblox Player not found at $ROBLOX_PLAYER_PATH"
+    exit 1
+fi
+
+# Attempt to launch Roblox Player and capture console output
+echo "Launching Roblox Player at: $ROBLOX_PLAYER_PATH"
+
+# Start Roblox Player in the foreground, capturing output
+"$ROBLOX_PLAYER_PATH" 2>&1 | while IFS= read -r line; do
+    log_message "$line"
+done &
+
+# Capture the process ID (PID) of Roblox Player
+ROBLOX_PLAYER_PID=$!
 
 # Wait for Roblox Player to start (adjust sleep time as needed)
 sleep 10  # Adjust sleep time depending on how long it takes for Roblox Player to start
@@ -39,5 +52,8 @@ log_message "0 Scripts Have Been Executed."
 
 # Output TCP port for further use if needed
 echo "TCP Port: $TCP_PORT"
+
+# Wait for Roblox Player to finish (optional)
+wait $ROBLOX_PLAYER_PID
 
 echo "Script execution completed."
