@@ -19,7 +19,9 @@ echo "Launching Roblox Player at: $ROBLOX_PLAYER_PATH"
 
 # Start Roblox Player in the foreground, capturing output
 "$ROBLOX_PLAYER_PATH" 2>&1 | while IFS= read -r line; do
-    log_message "$line"
+    if [[ $line == \[Raptor\]* ]]; then
+        log_message "$line"
+    fi
 done &
 
 # Capture the process ID (PID) of Roblox Player
