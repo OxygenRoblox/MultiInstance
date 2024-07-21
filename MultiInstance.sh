@@ -5,11 +5,6 @@ log_ipc_message() {
     echo "[IPC] $1"
 }
 
-# Display [Raptor] Development LLC info and version
-echo "[Raptor] Development LLC"
-echo "    -> Multi Instance <.> V.1.0.1"
-echo
-
 # Display initial decorative lines
 echo "
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣷⣶⣦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -30,8 +25,16 @@ echo "
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 "
+
+# Function to parse and log IPC messages
+parse_ipc_message() {
+    message="$1"
+    if [[ "$message" == "Roblox Process Locked On Port"* ]]; then
+        port_number=$(echo "$message" | grep -oP 'Roblox Process Locked On Port \K[0-9]+')
+        log_ipc_message "Roblox Process Locked On Port $port_number"
+    fi
+}
 
 # Path to Roblox Player executable
 ROBLOX_PLAYER_PATH="/Applications/Roblox.app/Contents/MacOS/RobloxPlayer"
@@ -40,6 +43,10 @@ ROBLOX_PLAYER_PATH="/Applications/Roblox.app/Contents/MacOS/RobloxPlayer"
 echo "Launching Roblox Player..."
 "$ROBLOX_PLAYER_PATH" 2>&1 | while IFS= read -r line; do
     if [[ "$line" == \[IPC\]* ]]; then
-        log_ipc_message "$(echo "$line" | sed 's/^\[IPC\]//')"
+        parse_ipc_message "$(echo "$line" | sed 's/^\[IPC\]//')"
     fi
 done
+
+# Display [Raptor] Development LLC info and version at the bottom
+echo "[Raptor] Development LLC"
+echo "    -> Multi Instance <.> V.1.0.1"
