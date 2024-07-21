@@ -53,9 +53,9 @@ log_raptor_info() {
     echo "    -> Multi Instance <.> V.1.0.1"
 }
 
-# Display [Raptor] Development LLC info and version at the bottom
-log_raptor_info
-
 # Launch Roblox Player
 echo "Launching Roblox Player..."
 launch_roblox_player
+
+# Display [Raptor] Development LLC info and version at the bottom
+log_raptor_info
