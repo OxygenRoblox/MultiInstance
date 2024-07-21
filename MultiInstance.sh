@@ -10,8 +10,6 @@ ROBLOX_PLAYER_PATH="/Applications/Roblox.app/Contents/MacOS/RobloxPlayer"
 
 # Launch Roblox Player and capture its console output
 echo "Launching Roblox Player..."
-"$ROBLOX_PLAYER_PATH" 2>&1 | while IFS= read -r line; do
-    if [[ $line == *"[IPC]"* ]]; then
-        log_ipc_message "$(echo "$line" | sed 's/^\[IPC\]//')"
-    fi
+"$ROBLOX_PLAYER_PATH" 2>&1 | grep '\[IPC\]' | while IFS= read -r line; do
+    log_ipc_message "$(echo "$line" | sed 's/^\[IPC\]//')"
 done
