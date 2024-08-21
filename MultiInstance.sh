@@ -24,85 +24,57 @@ echo "
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-"
+" 
 
-# Path to Roblox Player executable
-ROBLOX_PLAYER_PATH="/Applications/Roblox.app/Contents/MacOS/RobloxPlayer"
+# Define file paths
+COOKIE_JSON="/Users/abdifatah/Downloads/cookies.json"
+SESSION_FILE="/Users/abdifatah/Downloads/roblox_session.txt"
+LAST_COOKIE_FILE="/Users/abdifatah/Downloads/last_cookie.txt"
 
-# Path to cookies JSON file
-COOKIE_FILE="$HOME/.roblox/cookies.json"
+# Create COOKIE_JSON file with initial content if it does not exist
+if [ ! -f "$COOKIE_JSON" ]; then
+    echo '{"cookies": ["placeholder_cookie_value"]}' > "$COOKIE_JSON"
+    echo "Created $COOKIE_JSON with initial content."
+fi
 
-# Function to create the cookie directory if it doesn't exist
-create_cookie_directory() {
-    local dir=$(dirname "$COOKIE_FILE")
-    if [ ! -d "$dir" ]; then
-        mkdir -p "$dir"
-        echo "Created directory: $dir"
-    fi
+# Create LAST_COOKIE_FILE if it does not exist
+if [ ! -f "$LAST_COOKIE_FILE" ]; then
+    echo "placeholder_cookie_value" > "$LAST_COOKIE_FILE"
+    echo "Created $LAST_COOKIE_FILE with initial content."
+fi
+
+# Function to get the first cookie from the JSON file
+get_current_cookie() {
+    jq -r '.cookies[0]' "$COOKIE_JSON"
 }
 
-# Function to create or update the JSON file with cookies
-update_json_file() {
+# Function to update the session file
+update_session_file() {
     local cookie="$1"
-    
-    create_cookie_directory
-    
-    # Check if the JSON file exists
-    if [ ! -f "$COOKIE_FILE" ]; then
-        # Create the JSON file with an initial structure if it doesn't exist
-        echo '{"cookies": []}' > "$COOKIE_FILE"
+    echo "$cookie" > "$SESSION_FILE"
+}
+
+# Function to get the last used cookie from the file
+get_last_cookie() {
+    if [ -s "$LAST_COOKIE_FILE" ]; then
+        cat "$LAST_COOKIE_FILE"
+    else
+        # If the file is empty, fetch the first cookie from the JSON file
+        get_current_cookie
     fi
-    
-    # Use jq to update the JSON file
-    jq --arg cookie "$cookie" '.cookies += [$cookie]' "$COOKIE_FILE" > temp.json && mv temp.json "$COOKIE_FILE"
 }
 
-# Function to generate a new cookie (replace with actual method)
-generate_new_cookie() {
-    echo "COOKIE_$(date +%s)"
-}
-
-# Function to handle user options for managing cookies
-manage_cookies() {
-    echo "1. Add new cookie"
-    echo "2. Switch to a different cookie"
-    echo "3. View all cookies"
-    echo "4. Exit"
-    read -p "Choose an option: " option
-    
-    case $option in
-        1)
-            new_cookie=$(generate_new_cookie)
-            update_json_file "$new_cookie"
-            echo "Added new cookie: $new_cookie"
-            ;;
-        2)
-            # In a real scenario, you would implement logic to switch cookies here
-            echo "Cookie switching functionality not yet implemented."
-            ;;
-        3)
-            cat "$COOKIE_FILE"
-            ;;
-        4)
-            exit 0
-            ;;
-        *)
-            echo "Invalid option. Please choose a valid number."
-            ;;
-    esac
-}
-
-# Function to simulate logging IPC messages
-log_ipc_message() {
-    local message="$1"
-    echo "IPC Message: $message"
-}
-
-# Main script loop
+# Loop indefinitely to update the session file
 while true; do
-    manage_cookies
-done
+    # Get the last used cookie
+    last_cookie=$(get_last_cookie)
 
-# Start Roblox (this line will never be reached due to the infinite loop above)
-# start_roblox
+    # Update the session file with the current cookie
+    update_session_file "$last_cookie"
+
+    # Save the last used cookie (reusing the same cookie)
+    echo "$last_cookie" > "$LAST_COOKIE_FILE"
+
+    # Delay before updating again
+    sleep 5  # Adjust the delay as needed
+done
