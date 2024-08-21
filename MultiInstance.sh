@@ -1,52 +1,97 @@
 #!/bin/bash
 
-# Configurable variables
+# Display [Raptor] Development LLC info and version
+echo "[Raptor] Development LLC"
+echo "    -> Multi Instance <.> V.1.0.1"
+echo
+
+# Display initial decorative lines
+echo "
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⣿⣷⣶⣦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⡄⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⡿⠟⠛⠛⠛⠛⠻⣿⣿⣿⣆⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣾⣿⣿⣿⣿⣁⠀⠀⠀⠀⣀⣤⣶⣿⣿⣿⣿⣧⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢰⣿⣿⣿⠛⠉⠛⠶⠀⠀⢐⠿⠋⠀⢨⣿⣿⣿⣿⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⢷⣿⣿⣶⠀⠀⠉⢶⣿⣿⠿⢿⣿⣿⣿⡄⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢸⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⣿⣿⡇⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣶⡶⠂⠀⣀⠀⢀⡄⠐⢲⡾⣻⣿⣿⣿⠇⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⢻⣿⣿⣯⢿⡶⣶⣿⣟⣿⡶⠶⣿⢣⣿⣿⣿⣿⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣀⣾⣿⣿⣿⣧⠛⠒⠠⣤⣤⠶⠾⢣⣿⣿⣿⣿⣿⣤⣀⠀⠀⠀
+⢀⣠⣤⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣷⡄⠀⢿⣿⠀⣰⣿⣿⣿⣿⣿⣿⣿⣷⣶
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣾⣿⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+"
+
+# Path to Roblox Player executable
+ROBLOX_PLAYER_PATH="/Applications/Roblox.app/Contents/MacOS/RobloxPlayer"
+
+# Path to cookies JSON file
 COOKIE_FILE="cookies.json"
-COOKIE_UPDATE_INTERVAL=1  # Time in seconds between cookie changes
 
-# Function to read cookies from a file and return as an array
-get_cookies() {
-    local file="$1"
-    local cookies
-    cookies=$(jq -r '.cookies[]' "$file")
-    echo "$cookies"
-}
-
-# Function to update the Roblox session file with a new cookie
-update_cookie() {
+# Function to create or update the JSON file with cookies
+update_json_file() {
     local cookie="$1"
-    echo "$cookie" > roblox-session.txt
-    echo "Changed Cookie - $(date +'%I:%M %p') 🛡 Made by Your fellow skid ChatGPT"
-}
-
-# Function to start Roblox and wait for it to be ready
-start_roblox() {
-    echo "Starting Roblox..."
-    open -a "Roblox Player" --args --placeId=YOUR_PLACE_ID --gameInstanceId=YOUR_GAME_INSTANCE_ID
-    sleep 10  # Wait for Roblox to start
-}
-
-# Function to change cookies at intervals
-change_cookies() {
-    local cookies
-    cookies=$(get_cookies "$COOKIE_FILE")
     
-    while true; do
-        for cookie in $cookies; do
-            update_cookie "$cookie"
-            sleep "$COOKIE_UPDATE_INTERVAL"
-        done
-    done
+    # Check if the JSON file exists
+    if [[ ! -f "$COOKIE_FILE" ]]; then
+        # Create the JSON file with an initial structure if it doesn't exist
+        echo '{"cookies": []}' > "$COOKIE_FILE"
+    fi
+    
+    # Use jq to update the JSON file
+    jq --arg cookie "$cookie" '.cookies += [$cookie]' "$COOKIE_FILE" > temp.json && mv temp.json "$COOKIE_FILE"
 }
 
-# Main script
-if [ ! -f "$COOKIE_FILE" ]; then
-    echo "Cookie file '$COOKIE_FILE' not found!"
-    exit 1
-fi
+# Function to generate a new cookie (replace with actual method)
+generate_new_cookie() {
+    echo "COOKIE_$(date +%s)"
+}
 
-# Start Roblox
-start_roblox
+# Function to handle user options for managing cookies
+manage_cookies() {
+    echo "1. Add new cookie"
+    echo "2. Switch to a different cookie"
+    echo "3. View all cookies"
+    echo "4. Exit"
+    read -p "Choose an option: " option
+    
+    case $option in
+        1)
+            new_cookie=$(generate_new_cookie)
+            update_json_file "$new_cookie"
+            echo "Added new cookie: $new_cookie"
+            ;;
+        2)
+            # In a real scenario, you would implement logic to switch cookies here
+            echo "Cookie switching functionality not yet implemented."
+            ;;
+        3)
+            cat "$COOKIE_FILE"
+            ;;
+        4)
+            exit 0
+            ;;
+        *)
+            echo "Invalid option. Please choose a valid number."
+            ;;
+    esac
+}
 
-# Start changing cookies
-change_cookies
+# Function to simulate logging IPC messages
+log_ipc_message() {
+    local message="$1"
+    echo "IPC Message: $message"
+}
+
+# Main script loop
+while true; do
+    manage_cookies
+done
+
+# Start Roblox (this line will never be reached due to the infinite loop above)
+# start_roblox
