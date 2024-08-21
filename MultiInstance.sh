@@ -36,9 +36,9 @@ if [ ! -f "$COOKIE_JSON" ]; then
     echo "Created $COOKIE_JSON with initial content."
 fi
 
-# Function to get all cookies from the JSON file
-get_cookies() {
-    jq -r '.cookies[].cookie' "$COOKIE_JSON"
+# Function to get the current cookie from the JSON file
+get_current_cookie() {
+    jq -r '.cookies[0].cookie' "$COOKIE_JSON"
 }
 
 # Function to update the session file with the current cookie
@@ -49,7 +49,7 @@ update_session_file() {
 
 # Function to cycle through cookies
 cycle_cookies() {
-    local cookies=($(get_cookies))
+    local cookies=($(jq -r '.cookies[].cookie' "$COOKIE_JSON"))
     local num_cookies=${#cookies[@]}
     local current_index=0
 
