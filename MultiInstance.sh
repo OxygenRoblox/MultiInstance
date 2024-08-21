@@ -31,14 +31,25 @@ echo "
 ROBLOX_PLAYER_PATH="/Applications/Roblox.app/Contents/MacOS/RobloxPlayer"
 
 # Path to cookies JSON file
-COOKIE_FILE="cookies.json"
+COOKIE_FILE="$HOME/.roblox/cookies.json"
+
+# Function to create the cookie directory if it doesn't exist
+create_cookie_directory() {
+    local dir=$(dirname "$COOKIE_FILE")
+    if [ ! -d "$dir" ]; then
+        mkdir -p "$dir"
+        echo "Created directory: $dir"
+    fi
+}
 
 # Function to create or update the JSON file with cookies
 update_json_file() {
     local cookie="$1"
     
+    create_cookie_directory
+    
     # Check if the JSON file exists
-    if [[ ! -f "$COOKIE_FILE" ]]; then
+    if [ ! -f "$COOKIE_FILE" ]; then
         # Create the JSON file with an initial structure if it doesn't exist
         echo '{"cookies": []}' > "$COOKIE_FILE"
     fi
