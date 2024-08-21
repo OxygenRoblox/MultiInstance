@@ -32,13 +32,13 @@ SESSION_FILE="/Users/abdifatah/Downloads/roblox_session.txt"
 
 # Create COOKIE_JSON file with initial content if it does not exist
 if [ ! -f "$COOKIE_JSON" ]; then
-    echo '{"cookies": ["placeholder_cookie_value"]}' > "$COOKIE_JSON"
+    echo '{"cookies": [{"cookie": "placeholder_cookie_value"}]}' > "$COOKIE_JSON"
     echo "Created $COOKIE_JSON with initial content."
 fi
 
 # Function to get all cookies from the JSON file
 get_cookies() {
-    jq -r '.cookies[]' "$COOKIE_JSON"
+    jq -r '.cookies[].cookie' "$COOKIE_JSON"
 }
 
 # Function to update the session file with the current cookie
@@ -61,8 +61,12 @@ cycle_cookies() {
         # Move to the next cookie index
         current_index=$(( (current_index + 1) % num_cookies ))
 
+        # Update the JSON file with the new cookie
+        local new_cookie=${cookies[$current_index]}
+        jq --arg new_cookie "$new_cookie" '.cookies[0].cookie = $new_cookie' "$COOKIE_JSON" > "${COOKIE_JSON}.tmp" && mv "${COOKIE_JSON}.tmp" "$COOKIE_JSON"
+
         # Delay before updating again
-        sleep 2  # Adjust the delay as needed
+        sleep 5  # Adjust the delay as needed
     done
 }
 
